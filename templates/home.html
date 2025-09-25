@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FWI Prediction Model</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c5e1a; /* A deep forest green */
+            --secondary-color: #f4f4f4; /* Light grey for the card */
+            --background-gradient: linear-gradient(to right top, #d1e8d0, #a8d1b1, #7eb994, #53a279, #1b8a61);
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-image: var(--background-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .prediction-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1, h2 {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-family: var(--font-family);
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box; /* Important for consistent sizing */
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(44, 94, 26, 0.2);
+        }
+
+        .predict-button {
+            grid-column: 1 / -1; /* Make button span both columns */
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .predict-button:hover {
+            background-color: #3b7d24;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .result span {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        /* Responsive design for smaller screens */
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .prediction-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="prediction-card">
+            <h1>Forest Fire Weather Index Prediction 🔥</h1>
+
+            <form action="{{ url_for('predict_datapoint') }}" method="post">
+                <div class="form-grid">
+                    
+                    <div class="input-group">
+                        <label for="Temperature">Temperature (°C)</label>
+                        <input type="text" id="Temperature" name="Temperature" placeholder="e.g., 32" required="required">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="RH">Relative Humidity (RH %)</label>
+                        <input type="text" id="RH" name="RH" placeholder="e.g., 62" required="required">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Ws">Wind Speed (Ws km/h)</label>
+                        <input type="text" id="Ws" name="Ws" placeholder="e.g., 15" required="required">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Rain">Rainfall (mm)</label>
+                        <input type="text" id="Rain" name="Rain" placeholder="e.g., 0.7" required="required">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="FFMC">Fine Fuel Moisture Code (FFMC)</label>
+                        <input type="text" id="FFMC" name="FFMC" placeholder="e.g., 77.8" required="required">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="DMC">Duff Moisture Code (DMC)</label>
+                        <input type="text" id="DMC" name="DMC" placeholder="e.g., 14.7" required="required">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="ISI">Initial Spread Index (ISI)</label>
+                        <input type="text" id="ISI" name="ISI" placeholder="e.g., 4.7" required="required">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="Classes">Classes (Fire: 1, No Fire: 0)</label>
+                        <input type="text" id="Classes" name="Classes" placeholder="e.g., 1" required="required">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="Region">Region (Bejaia: 0, Sidi-Bel Abbes: 1)</label>
+                        <input type="text" id="Region" name="Region" placeholder="e.g., 0" required="required">
+                    </div>
+
+                </div>
+                <button type="submit" class="predict-button">Predict FWI</button>
+            </form>
+            
+            {% if results %}
+            <h2 class="result">The FWI Prediction is: <span>{{ results }}</span></h2>
+            {% endif %}
+
+        </div>
+    </div>
+</body>
+</html>
